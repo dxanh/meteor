@@ -36,6 +36,7 @@ insecure@1.0.7
 inter-process-messaging@0.1.0
 jquery@1.11.11
 launch-screen@1.1.1
+less@2.8.0
 livedata@1.0.18
 logging@1.1.20
 meteor@1.9.2
