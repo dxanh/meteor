@@ -41,3 +41,10 @@ Template.home.helpers({
         });
     }
 });
+
+Template.home.events({
+    'click button.lazyload': function (e, template) {
+        var currentLimit = Session.get('lazyloadLimit');
+        Session.set('lazyloadLimit', currentLimit + 2);
+    }
+});
