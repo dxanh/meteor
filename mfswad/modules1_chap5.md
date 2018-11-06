@@ -26,3 +26,71 @@ Router.map(function() {
 ```
 To prevent the double appearance of the layout, remove the {{> layout}} helper 
 from the <body> tag inside index.html file
+
+## Switching to a layout template
+
+Replace the {{> home}} inclusion helper inside layout.html template with {{> yield}}
+The {{> yield}} helper is a placeholder helper provided by iron:router, where route templates get rendered.
+After doing this, the browser still rendering the home template but this time dynamically.
+
+Add a not found template to app by adding the following template to layout.html
+```html
+  <template name="notFound">
+         <div class="center">
+           <h1>Nothing here</h1><br>
+           <h2>You hit a page which doesn't exist!</h2>
+         </div>
+</template>
+
+```
+Add the notFoundTemplate property to the Router
+```js
+Router.configure({ 
+layoutTemplate: 'layout', 
+notFoundTemplate: 'notFound'
+ });
+```
+Navigate to http://localhost:3000/anything in browser, 
+will see the notFound template being rendered instead of home template
+
+## Adding another route
+
+Create an About route , edit routes.js
+```js
+Router.map(function() {
+    this.route('Home', {
+        path: '/',
+        template: 'home'
+    });
+    this.route('About', {
+           path: '/about',
+           template: 'about'
+       });
+});
+```
+Switch between our Home and About pages on browse
+
+## Moving the posts subscription to the Home route
+The iron:router has a special function called subscriptions() , which is ideal for load the right data for each page, subscription in the routes instead of keeping it in the separate subscriptions.js file
+
+To see it in action, add the subscriptions() function to our Home route:
+
+```js
+   this.route('Home', {
+       path: '/',
+template: 'home', subscriptions: function(){
+           return Meteor.subscribe("lazyload-posts", Session.
+   get('lazyloadLimit'));
+}
+});
+```
+The Session.setDefault('lazyloadLimit', 2) line from the subscriptions.js file needs to be placed at the start of the routes.js file and before the Router.configure() function:
+
+```js
+   if(Meteor.isClient) {
+       Session.setDefault('lazyloadLimit', 2);
+}
+```
+Delete the my-meteor-blog/client/subscriptions.js file
+
+Check the browser and refresh the page will see the home template still shows all the example posts.
