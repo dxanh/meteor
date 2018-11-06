@@ -88,3 +88,8 @@ Meteor.publish('lazyload-posts', function (limit) {
     }
   });
 });
+Meteor.publish("single-post", function (slug) {
+  return Posts.find({
+    slug: slug
+  });
+});
