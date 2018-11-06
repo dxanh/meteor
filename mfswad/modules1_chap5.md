@@ -94,3 +94,78 @@ The Session.setDefault('lazyloadLimit', 2) line from the subscriptions.js file n
 Delete the my-meteor-blog/client/subscriptions.js file
 
 Check the browser and refresh the page will see the home template still shows all the example posts.
+
+## Setting up the post route
+Create a file called post.html inside our my-meteor-blog/client/templates
+
+```html
+<template name="post">
+     <h1>{{title}}</h1>
+     <h2>{{description}}</h2>
+     <small>
+       Posted {{formatTime timeCreated "fromNow"}} by {{author}}
+</small>
+     <div class="postContent">
+       {{#markdown}}
+   {{text}}
+       {{/markdown}}
+     </div>
+   </template>
+```
+## Creating a single-post publication
+Add the following publication
+```js
+  Meteor.publish("single-post", function(slug) {
+     return Posts.find({slug: slug});
+});
+```
+## Adding the post route
+ Add the following template to my-meteor-blog/client/templates/layout.html
+ 
+```html
+   <template name="loading">
+     <div class="center">
+       <h1>Loading</h1>
+     </div>
+</template>
+```
+Loading template to Router.configure()
+
+```js
+Router.configure({ 
+    layoutTemplate: 'layout', 
+    notFoundTemplate: 'notFound', 
+    loadingTemplate: 'loading'})
+```
+
+and Router.map() 
+```js
+this.route('Post', {
+       path: '/posts/:slug',
+       template: 'post',
+       waitOn: function() {
+           return Meteor.subscribe('single-post', this.params.slug);
+     },
+       data: function() {
+           return Posts.findOne({slug: this.params.slug});
+} });
+```
+ Open the my-meteor-blog/client/templates/postInList. html file and change the link as follows:
+ ```html
+<h2><a href="posts/{{slug}}">{{title}}</a></h2>
+```
+## Changing the website's title
+Edit routes.js
+```js
+Router.configure({
+       layoutTemplate: 'layout',
+       notFoundTemplate: 'notFound',
+       onAfterAction: function() {
+           var data = Posts.findOne({slug: this.params.slug});
+           if(_.isObject(data) && !_.isArray(data))
+               document.title = 'My Meteor Blog - '+ data.title;
+           else
+               document.title = 'My Meteor Blog - '+ this.route.
+getName(); }
+});
+```
