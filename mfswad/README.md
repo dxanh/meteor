@@ -3,4 +3,7 @@
 
 [2. Building HTML Templates](modules1_chap2.md)
 
+[4. Controlling the Data Flow](modules1_chap4.md)
+
+[5. Making Our App Versatile with Routing](modules1_chap5.md)
 
