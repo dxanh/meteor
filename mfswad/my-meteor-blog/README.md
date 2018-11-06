@@ -1,4 +1,4 @@
 # Building Single-page Web Apps with Meteor
-modules1_chap1.md
+[a relative link](modules1_chap1.md)
 
 
