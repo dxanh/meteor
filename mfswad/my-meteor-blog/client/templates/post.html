@@ -5,7 +5,8 @@
     <small>
         Posted {{formatTime timeCreated "fromNow"}} by {{author}}
 
-        {{#if currentUser}}
+        <!-- #Users and Permissions -> Adding admin functionality to the templates -->
+        {{#if currentUser.roles.admin}}
         | <a href="/edit-post/{{slug}}">Edit post</a>
         {{/if}}
     </small>

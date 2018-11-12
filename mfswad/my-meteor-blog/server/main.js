@@ -4,6 +4,29 @@ Meteor.startup(function () {
 
   console.log('Server started');
 
+
+  // #Users and Permissions -> -> Creating the admin user
+  if (Meteor.users.find().count() === 0) {
+
+    console.log('Created Admin user');
+
+    var userId = Accounts.createUser({
+      username: 'johndoe',
+      email: 'johndoe@example.com',
+      password: '1234',
+      profile: {
+        name: 'John Doe'
+      }
+    });
+    Meteor.users.update(userId, {
+      $set: {
+        roles: {
+          admin: true
+        },
+      }
+    })
+  };
+
   // #Storing Data -> Adding example posts
   if (Posts.find().count() === 0) {
 
@@ -58,25 +81,28 @@ Meteor.startup(function () {
   }
 });
 
-Meteor.publish('all-posts', function () {
-  return Posts.find()
-});
+// Publications
 
-Meteor.publish('limited-posts', function () {
-  return Posts.find({}, {
-    limit: 2,
-    sort: {
-      timeCreated: -1
-    }
-  });
-});
-Meteor.publish('specificfield', function () {
-  return Posts.find({}, {
-    fields: {
-      title: 1
-    }
-  });
-});
+// Meteor.publish('all-posts', function () {
+//   return Posts.find()
+// });
+
+// Meteor.publish('limited-posts', function () {
+//   return Posts.find({}, {
+//     limit: 2,
+//     sort: {
+//       timeCreated: -1
+//     }
+//   });
+// });
+// Meteor.publish('specificfield', function () {
+//   return Posts.find({}, {
+//     fields: {
+//       title: 1
+//     }
+//   });
+// });
+
 Meteor.publish('lazyload-posts', function (limit) {
   return Posts.find({}, {
     limit: limit,
@@ -88,8 +114,23 @@ Meteor.publish('lazyload-posts', function (limit) {
     }
   });
 });
+
 Meteor.publish("single-post", function (slug) {
   return Posts.find({
     slug: slug
   });
+});
+
+Meteor.publish("userRoles", function () {
+  if (this.userId) {
+    return Meteor.users.find({
+      _id: this.userId
+    }, {
+      fields: {
+        roles: 1
+      }
+    });
+  } else {
+    this.ready();
+  }
 });

@@ -83,7 +83,189 @@ helper inside our menu's <ul></ul> tags, as follows:
   <li><a href="/">Home</a></li>
   <li><a href="/about">About</a></li>
 </ul>
-<strong>{{> loginButtons}}</strong>
+{{> loginButtons}}
 ```
 
 ## Creating the template to edit posts
+
+Create a file called editPost.html inside our my-meteor-blog/client/templates folder,
+and fill it with the following lines of code:
+
+```html
+<template name="editPost">
+  <div class="editPost">
+    <form>
+      <label>
+        Title
+        <input
+          type="text"
+          name="title"
+          placeholder="Awesome title"
+          value="{{title}}"
+        />
+      </label>
+      <label>
+        Description
+        <textarea
+          name="description"
+          placeholder="Short description
+   displayed in posts list"
+          rows="3"
+        >{{description}}</textarea>
+      </label>
+      <label>
+        Content
+        <textarea
+          name="text"
+          rows="10"
+          placeholder="Brilliant
+   content"
+        >{{text}}</textarea>
+      </label>
+      <button type="submit" class="save">Save Post</button>
+    </form>
+  </div>
+</template>
+```
+
+If we now check http://localhost:3000/, we will notice that we can't see any
+of the changes we made so far, apart from the Sign in link in the corner
+of our website.
+
+## Creating the admin user
+
+Open the my-meteor-blog/server/main.js file and add the following
+lines of code somewhere inside Meteor.startup(function(){...}):
+
+```js
+if (Meteor.users.find().count() === 0) {
+  console.log('Created Admin user')
+
+  var userId = Accounts.createUser({
+    username: 'johndoe',
+    email: 'johndoe@example.com',
+    password: '1234',
+    profile: {
+      name: 'John Doe'
+    }
+  })
+  Meteor.users.update(userId, {
+    $set: {
+      roles: {
+        admin: true
+      }
+    }
+  })
+}
+```
+
+If we now go to our browser, we should be able to log in using the user
+we just created, and we immediately see that all the edit links appear.
+However, when we click any of the edit links, we will see the notFound
+template appearing because we didn't create any of our admin routes yet.
+
+## Adding permissions
+
+Meteor's account package doesn't come by default with configurable permissions for users.
+To add permission control, we can add a third-party package such as the deepwell:authorization package,
+which can be found on Atmosphere at http://atmospherejs.com/deepwell/authorization
+and which comes with a complex role model.
+
+By default, Meteor publishes the username, emails, and profile properties of the currently logged-in user.
+To add additional properties, such as our custom roles property, we need to add a publication,
+to access the roles property on the client as well, as follows:
+
+Open the my-meteor/blog/server/publications.js file and add the following publication:
+
+```js
+Meteor.publish('userRoles', function() {
+  if (this.userId) {
+    return Meteor.users.find({ _id: this.userId }, { fields: { roles: 1 } })
+  } else {
+    this.ready()
+  }
+})
+```
+
+In the my-meteor-blog/main.js file, we add the subscription as follows:
+
+```js
+if (Meteor.isClient) {
+  Meteor.subscribe('userRoles')
+}
+```
+
+Now that we have the roles property available on the client,
+we can change {{#if currentUser}}..{{/if}} in the home and post templates
+to {{#if currentUser.roles.admin}}..{{/if}} so that only admins can see the buttons.
+
+## Creating routes for the admin
+
+To add the route to create posts, let's open up our my-meteor-blog/routes.js file
+and add the following route to the Router.map() function:
+
+```js
+this.route('Create Post', {
+  path: '/create-post',
+  template: 'editPost'
+})
+```
+
+To make the edit post route work, we need to add subscriptions similar to those
+we did for the Post route itself. To keep things DRY (which means Don't Repeat Yourself),
+we can create a custom controller, which both routes will use, as follows:
+
+Add the following lines of code after the Router.configure(...); call:
+
+```js
+PostController = RouteController.extend({
+  waitOn: function() {
+    return Meteor.subscribe('single-post', this.params.slug)
+  },
+  data: function() {
+    return Posts.findOne({ slug: this.params.slug })
+  }
+})
+```
+
+Now we can simply edit the Post route,
+remove the waitOn() and data() functions, and add PostController instead:
+
+```js
+this.route('Post', {
+  path: '/posts/:slug',
+  template: 'post',
+  controller: 'PostController'
+})
+```
+
+Now we can also add the Edit Post route by just changing the path and the
+template properties:
+
+```js
+this.route('Edit Post', {
+  path: '/edit-post/:slug',
+  template: 'editPost',
+  controller: 'PostController'
+})
+```
+
+## Preventing visitors from seeing the admin routes
+
+To prevent visitors from seeing admin routes,
+we need to check whether the user is logged in before we show them the routes.
+
+Add the following code snippet at the end of the routes.js file:
+
+```js
+   var requiresLogin = function(){
+       if (!Meteor.user() ||
+           !Meteor.user().roles ||
+           !Meteor.user().roles.admin) {
+           this.render('notFound');
+       } else {
+           this.next();
+} };
+   Router.onBeforeAction(requiresLogin, {only: ['Create Post','Edit
+   Post']});
+```

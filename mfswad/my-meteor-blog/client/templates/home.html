@@ -1,46 +1,20 @@
 <template name="home">
     {{#markdown}}
-    Welcome to my Blog
+    ## Welcome to my Blog
     Here I'm talking about my latest discoveries from the world of JavaScript.
     {{/markdown}}
 
 
-    <!-- Template helpers and how to displaying data -->
-
-    <!-- {{{exampleHelper}}} -->
-
-
-    <!-- Setting the data context for a template -->
-
-    <!-- {{> contextExample someText="I was set in the parent template's helper, as an argument."}}
-
-    {{> contextExample dataContextHelper}} -->
-
-    <!-- {{#with dataContextHelper}}
-    {{> contextExample}}
-    {{/with}} -->
-
-    <!-- {{#with dataContextHelper}}
-    <p>{{someText}}</p>
-    <p>{{someNested.text}}</p>
-    {{/with}} -->
-
-
-    <!-- Block helpers -->
-
-    <!-- {{#blockHelperExample true}}
-    <span>Some Content</span>
-    {{else}}
-    <span>Some Warning</span>
-    {{/blockHelperExample}} -->
-
-
-    <!-- Listing posts -->
-    {{#if currentUser}}
+    <!-- #Users and Permissions -> Adding admin functionality to the templates -->
+    {{#if currentUser.roles.admin}}
     <a href="/create-post" class="createNewPost">Create new post</a>
     {{/if}}
+
+    <!-- Listing posts -->
     {{#each postsList}}
     {{> postInList}}
     {{/each}}
+
+    <!-- #Controlling the data flow -> Lazy load posts or how to change subscriptions -->
     <button class="lazyload">Load more</button>
 </template>
