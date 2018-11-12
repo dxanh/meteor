@@ -9,3 +9,5 @@
 [4. Controlling the Data Flow](modules1_chap4.md)
 
 [5. Making Our App Versatile with Routing](modules1_chap5.md)
+
+[7. Users and Permissions](modules1_chap7.md)
