@@ -11,3 +11,5 @@
 [5. Making Our App Versatile with Routing](modules1_chap5.md)
 
 [7. Users and Permissions](modules1_chap7.md)
+
+[8. Security with the Allow and Deny Rules](modules1_chap8.md)
