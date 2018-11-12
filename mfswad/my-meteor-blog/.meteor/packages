@@ -21,7 +21,6 @@ less
 markdown
 momentjs:moment
 underscore
-insecure
 session
 iron:router
 accounts-ui
