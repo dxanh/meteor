@@ -24,3 +24,6 @@ underscore
 insecure
 session
 iron:router
+accounts-ui
+accounts-password
+wizonesolutions:underscore-string
