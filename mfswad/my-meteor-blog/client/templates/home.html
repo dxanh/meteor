@@ -36,6 +36,9 @@
 
 
     <!-- Listing posts -->
+    {{#if currentUser}}
+    <a href="/create-post" class="createNewPost">Create new post</a>
+    {{/if}}
     {{#each postsList}}
     {{> postInList}}
     {{/each}}
