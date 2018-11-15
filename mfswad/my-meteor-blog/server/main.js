@@ -104,7 +104,9 @@ Meteor.startup(function () {
 // });
 
 Meteor.publish('lazyload-posts', function (limit) {
-  return Posts.find({}, {
+  return Posts.find({
+    _id: -1
+  }, {
     limit: limit,
     fields: {
       text: 0
